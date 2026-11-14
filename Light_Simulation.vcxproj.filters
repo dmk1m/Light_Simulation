@@ -1366,6 +1366,9 @@
     <ClInclude Include="include\models\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\core\GLDebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\app\App.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1396,6 +1399,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\GLDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\app\App.cpp">
