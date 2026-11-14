@@ -1,48 +1,38 @@
 #pragma once
 
+#include <buffers/IndexBuffer.h>
+#include <buffers/VertexArray.h>
+#include <buffers/VertexBuffer.h>
+#include <buffers/VertexLayout.h>
+#include <render/Material.h>
 #include <shader/OpenGLShader.h>
 
 #include <glm/glm.hpp>
 
-#include <string>
 #include <vector>
 
 struct Vertex {
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
+
+    static VertexLayout layout();
 };
 
-// A texture referenced by a mesh. The GL texture itself is owned by the
-// Model that loaded it (textures are shared between meshes).
-struct Texture {
-    unsigned int id;
-    std::string type;
-    std::string path;
-};
-
-// Owns the mesh's VAO, VBO and EBO. Move-only: copying would delete the same
-// GL objects twice.
+// Indexed triangle mesh uploaded to the GPU, with its material.
+// Move-only (its buffers are).
 class Mesh {
 public:
-    // mesh data
-    std::vector<Vertex>       vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture>      textures;
+    Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, Material material);
 
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-    ~Mesh();
+    // The shader must be in use; sets material.* and draws.
+    void draw(const OpenGLShader& shader) const;
 
-    Mesh(const Mesh&) = delete;
-    Mesh& operator=(const Mesh&) = delete;
-    Mesh(Mesh&& other) noexcept;
-    Mesh& operator=(Mesh&& other) noexcept;
+    const Material& getMaterial() const;
 
-    void Draw(const OpenGLShader& shader) const;
 private:
-    //  render data
-    unsigned int VAO = 0, VBO = 0, EBO = 0;
-
-    void setupMesh();
-    void release();
+    VertexArray m_vao;
+    VertexBuffer m_vbo;
+    IndexBuffer m_ebo;
+    Material m_material;
 };

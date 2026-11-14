@@ -29,8 +29,10 @@ struct PointLight {
     vec3 diffuse;
     vec3 specular;
 }; 
-#define NR_POINT_LIGHTS 4  
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+// Must match MaxPointLights in include/lighting/Lights.h.
+#define MAX_POINT_LIGHTS 8
+uniform PointLight pointLights[MAX_POINT_LIGHTS];
+uniform int pointLightCount;
 
 struct SpotLight {
 	vec3 position;
@@ -69,7 +71,7 @@ void main()
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
 
     //phase 2: Point lights
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
+    for(int i = 0; i < pointLightCount; i++)
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir); 
 
     // phase 3: Spot light

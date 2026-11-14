@@ -2,37 +2,41 @@
 
 #include <models/Mesh.h>
 #include <shader/OpenGLShader.h>
+#include <texture/OpenGLTexture.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
+#include <filesystem>
+#include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-// Loads a model with Assimp. Owns its meshes and every texture it loaded
-// (meshes share textures by id). Move-only. The constructor throws
+struct aiMaterial;
+struct aiMesh;
+struct aiNode;
+struct aiScene;
+
+// Loads a model with Assimp into GPU meshes. Textures are loaded once and
+// shared between meshes. Move-only. The constructor throws
 // std::runtime_error if the file can't be loaded.
 class Model {
 public:
-	explicit Model(const char* path);
-	~Model();
+	explicit Model(const std::filesystem::path& path);
 
 	Model(const Model&) = delete;
 	Model& operator=(const Model&) = delete;
-	Model(Model&& other) noexcept;
-	Model& operator=(Model&& other) noexcept;
+	Model(Model&&) noexcept = default;
+	Model& operator=(Model&&) noexcept = default;
 
-	void Draw(const OpenGLShader& shader) const;
+	// The shader must be in use; draws every mesh with its own material.
+	void draw(const OpenGLShader& shader) const;
+
 private:
-	std::vector<Texture> m_textures_loaded;
 	std::vector<Mesh> m_meshes;
-	std::string m_directory;
+	std::filesystem::path m_directory;
+	std::unordered_map<std::string, std::shared_ptr<const OpenGLTexture>> m_textureCache;
 
-	void loadModel(std::string path);
-	void processNode(aiNode* node, const aiScene* scene);
-	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-	unsigned int textureFromFile(const char* path, const std::string& directory, bool gamma = false);
-	void releaseTextures();
+	void processNode(const aiNode* node, const aiScene* scene);
+	Mesh processMesh(const aiMesh* mesh, const aiScene* scene);
+	Material loadMaterial(const aiMaterial* material);
+	std::shared_ptr<const OpenGLTexture> loadTexture(const std::string& relativePath);
 };

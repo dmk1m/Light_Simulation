@@ -1,7 +1,10 @@
 #pragma once
 
-// Owns one OpenGL 2D texture. Move-only: copying would delete the same
-// texture twice.
+#include <string>
+
+// Owns one OpenGL 2D texture loaded from an image file (mipmapped, repeat
+// wrapping). Move-only: copying would delete the same texture twice.
+// The constructor throws std::runtime_error if the image can't be loaded.
 class OpenGLTexture {
 private:
 	int m_width = 0;
@@ -11,7 +14,7 @@ private:
 	unsigned int m_textureID = 0;
 
 public:
-	explicit OpenGLTexture(const char* path);
+	explicit OpenGLTexture(const std::string& path);
 	~OpenGLTexture();
 
 	OpenGLTexture(const OpenGLTexture&) = delete;
@@ -25,6 +28,8 @@ public:
 	unsigned int getTextureID() const;
 
 	void bind() const;
+	// Binds to texture unit GL_TEXTURE0 + unit (leaves that unit active).
+	void bindToUnit(unsigned int unit) const;
 	void unbind() const;
 
 };

@@ -32,16 +32,10 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) noexcept
     return *this;
 }
 
-void VertexBuffer::setData(const std::vector<float>& data, GLenum usage)
+void VertexBuffer::setData(const void* data, std::size_t sizeBytes, GLenum usage)
 {
     bind();
-
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        data.size() * sizeof(float),
-        data.data(),
-        usage
-    );
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(sizeBytes), data, usage);
 }
 
 void VertexBuffer::bind() const
