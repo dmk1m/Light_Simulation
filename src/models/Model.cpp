@@ -7,7 +7,9 @@
 #include <assimp/postprocess.h>
 #include <stb/stb_image.h>
 
+#include <cstring>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -26,13 +28,13 @@ void Model::Draw(OpenGLShader& shader)
 void Model::loadModel(std::string path)
 {
 	Assimp::Importer import;
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
-		return;
+		throw std::runtime_error("Failed to load model '" + path + "': " + import.GetErrorString());
 	}
-	m_directory = path.substr(0, path.find_last_of('/'));
+	const std::size_t slash = path.find_last_of("/\\");
+	m_directory = slash == std::string::npos ? "." : path.substr(0, slash);
 	processNode(scene->mRootNode, scene);
 }
 
@@ -68,11 +70,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		vector.z = mesh->mVertices[i].z;
 		vertex.Position = vector;
 
-		// Normal
-		vector.x = mesh->mNormals[i].x;
-		vector.y = mesh->mNormals[i].y;
-		vector.z = mesh->mNormals[i].z;
-		vertex.Normal = vector;
+		// Normal (aiProcess_GenSmoothNormals fills these in, but points/lines have none)
+		if (mesh->HasNormals())
+		{
+			vector.x = mesh->mNormals[i].x;
+			vector.y = mesh->mNormals[i].y;
+			vector.z = mesh->mNormals[i].z;
+			vertex.Normal = vector;
+		}
+		else
+			vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
 
 		// Texture Coordinates
 		if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
@@ -95,7 +102,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			indices.push_back(face.mIndices[j]);
 	}
 
-	if (mesh->mMaterialIndex >= 0)
+	if (mesh->mMaterialIndex < scene->mNumMaterials)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
@@ -151,16 +158,20 @@ unsigned int Model::textureFromFile(const char* path, const std::string& directo
 	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
-		GLenum format;
+		GLenum format = GL_RGB;
 		if (nrComponents == 1)
 			format = GL_RED;
+		else if (nrComponents == 2)
+			format = GL_RG;
 		else if (nrComponents == 3)
 			format = GL_RGB;
 		else if (nrComponents == 4)
 			format = GL_RGBA;
 
 		glBindTexture(GL_TEXTURE_2D, textureID);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

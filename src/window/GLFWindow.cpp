@@ -73,6 +73,7 @@ void GLFWindow::init()
 		throw std::runtime_error("OpenGLWindow: glfwCreateWindow() failed");
 	}
 	glfwMakeContextCurrent(m_window);
+	glfwSetWindowUserPointer(m_window, this);
 	glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -83,7 +84,9 @@ void GLFWindow::init()
 	glViewport(0, 0, m_width, m_height);
 	glEnable(GL_DEPTH_TEST);
 
-	glfwSetWindowUserPointer(m_window, this);
+	// Start the frame clock now so the first frame's delta isn't the whole startup time.
+	m_lastFrame = glfwGetTime();
+
 	glfwSetCursorPosCallback(m_window, GLFWindow::mouseCallback);
 	glfwSetScrollCallback(m_window, GLFWindow::scrollCallback);
 }
@@ -121,6 +124,13 @@ void GLFWindow::setGLFWHints()
 void GLFWindow::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
+	auto* self = static_cast<GLFWindow*>(glfwGetWindowUserPointer(window));
+	if (self)
+	{
+		self->m_width = width;
+		self->m_height = height;
+	}
 }
 
 void GLFWindow::update()
@@ -138,6 +148,9 @@ void GLFWindow::processInput()
 
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(m_window, true);
+
+	if (!m_camera)
+		return;
 
 	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
 		m_camera->processKeyboard(Camera::Movement::FORWARD, (float) m_deltaTime);
@@ -167,12 +180,12 @@ void GLFWindow::setBackgroundColor(const Color& color)
 
 void GLFWindow::enableDepthBuffer()
 {
-	glEnable(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void GLFWindow::disableDepthBuffer()
 {
-	glDisable(GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
 }
 
 void GLFWindow::clearDepthBuffer()

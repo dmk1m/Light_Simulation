@@ -38,8 +38,8 @@ void Box::addVertex(
 	if (hasColor())
 	{
 		m_vertices.push_back(m_color.getRed());
-		m_vertices.push_back(m_color.getBlue());
 		m_vertices.push_back(m_color.getGreen());
+		m_vertices.push_back(m_color.getBlue());
 	}
 
 	if (hasTextureCoordinate())
@@ -133,8 +133,8 @@ Box::Box(float x, float y, float z, float width, float height, float depth, Colo
 	: m_width(width),
 	m_height(height),
 	m_depth(depth),
-	m_color(color),
 	m_position(x, y, z),
+	m_color(color),
 	m_attributes(static_cast<unsigned int>(VertexAttribute::Position)),
 	m_strideFloats(3)
 {
