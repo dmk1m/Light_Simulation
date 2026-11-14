@@ -1,30 +1,38 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <string>
 
+// Owns one linked OpenGL shader program. Move-only: copying would delete the
+// same program twice. The constructor throws std::runtime_error if a source
+// file can't be read or the shaders fail to compile or link.
 class OpenGLShader {
 private:
-    void checkCompileErrors(unsigned int shader, std::string type);
-    std::string readShaderFromFile(const char* shaderPath);
-public:
-    // the program ID
-    unsigned int ID;
+    unsigned int m_id = 0;
 
-    // constructor reads and builds the shader
+    static std::string readShaderFromFile(const char* shaderPath);
+    static unsigned int compileStage(GLenum stage, const std::string& source, const char* path);
+
+public:
     OpenGLShader(const char* vertexPath, const char* fragmentPath);
+    ~OpenGLShader();
+
+    OpenGLShader(const OpenGLShader&) = delete;
+    OpenGLShader& operator=(const OpenGLShader&) = delete;
+    OpenGLShader(OpenGLShader&& other) noexcept;
+    OpenGLShader& operator=(OpenGLShader&& other) noexcept;
+
     // use/activate the shader
-    void use();
+    void use() const;
+    unsigned int getID() const;
+
     // utility uniform functions
     void setBool(const std::string& name, bool value) const;
     void setInt(const std::string& name, int value) const;
     void setFloat(const std::string& name, float value) const;
     void setVec2(const std::string& name, float x, float y) const;
-	void setVec3(const std::string& name, float x, float y, float z) const;
-	void setVec3(const std::string& name, const glm::vec3& value) const;
+    void setVec3(const std::string& name, float x, float y, float z) const;
+    void setVec3(const std::string& name, const glm::vec3& value) const;
     void setMat4(const std::string& name, const glm::mat4& mat) const;
 };
-
-#endif

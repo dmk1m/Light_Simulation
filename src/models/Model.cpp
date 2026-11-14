@@ -11,17 +11,59 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 Model::Model(const char* path) {
-	loadModel(path);
+	try
+	{
+		loadModel(path);
+	}
+	catch (...)
+	{
+		// The destructor won't run for a half-built object, so free what was loaded.
+		releaseTextures();
+		throw;
+	}
 }
 
-void Model::Draw(OpenGLShader& shader)
+Model::~Model()
 {
-	for (unsigned int i = 0; i < m_meshes.size(); i++)
+	releaseTextures();
+}
+
+Model::Model(Model&& other) noexcept
+	: m_textures_loaded(std::exchange(other.m_textures_loaded, {})),
+	m_meshes(std::move(other.m_meshes)),
+	m_directory(std::move(other.m_directory))
+{}
+
+Model& Model::operator=(Model&& other) noexcept
+{
+	if (this != &other)
 	{
-		m_meshes[i].Draw(shader);
+		releaseTextures();
+		m_textures_loaded = std::exchange(other.m_textures_loaded, {});
+		m_meshes = std::move(other.m_meshes);
+		m_directory = std::move(other.m_directory);
+	}
+	return *this;
+}
+
+void Model::releaseTextures()
+{
+	for (const Texture& texture : m_textures_loaded)
+	{
+		glDeleteTextures(1, &texture.id);
+	}
+	m_textures_loaded.clear();
+}
+
+void Model::Draw(const OpenGLShader& shader) const
+{
+	for (const Mesh& mesh : m_meshes)
+	{
+		mesh.Draw(shader);
 	}
 }
 

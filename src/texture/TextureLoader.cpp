@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 OpenGLTexture::OpenGLTexture(const char* path)
 {
@@ -42,6 +43,37 @@ OpenGLTexture::OpenGLTexture(const char* path)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	stbi_image_free(data);
+}
+
+OpenGLTexture::~OpenGLTexture()
+{
+	if (m_textureID != 0)
+	{
+		glDeleteTextures(1, &m_textureID);
+	}
+}
+
+OpenGLTexture::OpenGLTexture(OpenGLTexture&& other) noexcept
+	: m_width(std::exchange(other.m_width, 0)),
+	m_height(std::exchange(other.m_height, 0)),
+	m_nrChannels(std::exchange(other.m_nrChannels, 0)),
+	m_textureID(std::exchange(other.m_textureID, 0))
+{}
+
+OpenGLTexture& OpenGLTexture::operator=(OpenGLTexture&& other) noexcept
+{
+	if (this != &other)
+	{
+		if (m_textureID != 0)
+		{
+			glDeleteTextures(1, &m_textureID);
+		}
+		m_width = std::exchange(other.m_width, 0);
+		m_height = std::exchange(other.m_height, 0);
+		m_nrChannels = std::exchange(other.m_nrChannels, 0);
+		m_textureID = std::exchange(other.m_textureID, 0);
+	}
+	return *this;
 }
 
 int OpenGLTexture::getWidth() const
