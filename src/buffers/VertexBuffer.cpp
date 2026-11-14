@@ -1,5 +1,7 @@
 #include <buffers/VertexBuffer.h>
 
+#include <utility>
+
 VertexBuffer::VertexBuffer()
 {
     glGenBuffers(1, &m_id);
@@ -7,7 +9,27 @@ VertexBuffer::VertexBuffer()
 
 VertexBuffer::~VertexBuffer()
 {
-    glDeleteBuffers(1, &m_id);
+    if (m_id != 0)
+    {
+        glDeleteBuffers(1, &m_id);
+    }
+}
+
+VertexBuffer::VertexBuffer(VertexBuffer&& other) noexcept
+    : m_id(std::exchange(other.m_id, 0))
+{}
+
+VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) noexcept
+{
+    if (this != &other)
+    {
+        if (m_id != 0)
+        {
+            glDeleteBuffers(1, &m_id);
+        }
+        m_id = std::exchange(other.m_id, 0);
+    }
+    return *this;
 }
 
 void VertexBuffer::setData(const std::vector<float>& data, GLenum usage)

@@ -10,10 +10,20 @@
 #include <string>
 #include <vector>
 
+// Loads a model with Assimp. Owns its meshes and every texture it loaded
+// (meshes share textures by id). Move-only. The constructor throws
+// std::runtime_error if the file can't be loaded.
 class Model {
 public:
-	Model(const char* path);
-	void Draw(OpenGLShader& shader);
+	explicit Model(const char* path);
+	~Model();
+
+	Model(const Model&) = delete;
+	Model& operator=(const Model&) = delete;
+	Model(Model&& other) noexcept;
+	Model& operator=(Model&& other) noexcept;
+
+	void Draw(const OpenGLShader& shader) const;
 private:
 	std::vector<Texture> m_textures_loaded;
 	std::vector<Mesh> m_meshes;
@@ -24,4 +34,5 @@ private:
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 	unsigned int textureFromFile(const char* path, const std::string& directory, bool gamma = false);
+	void releaseTextures();
 };
