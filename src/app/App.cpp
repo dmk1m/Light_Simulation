@@ -16,9 +16,9 @@ namespace {
 	constexpr float NearPlane = 0.1f;
 	constexpr float FarPlane = 100.0f;
 
-	std::shared_ptr<const OpenGLTexture> loadTexture(const std::string& relativePath)
+	std::shared_ptr<const Texture> loadTexture(const std::string& relativePath)
 	{
-		return std::make_shared<const OpenGLTexture>(assetPath(relativePath).string());
+		return std::make_shared<const Texture>(assetPath(relativePath).string());
 	}
 }
 
@@ -26,8 +26,8 @@ App::App()
 	: m_camera(glm::vec3(0.0f, 0.0f, 3.0f)),
 	m_window(std::make_unique<GLFWindow>(WindowWidth, WindowHeight, "Light Simulation")),
 	m_scene(Scene::createDemo()),
-	m_litShader(assetPath("shaders/cube.vert").string(), assetPath("shaders/cube.frag").string()),
-	m_lightShader(assetPath("shaders/light.vert").string(), assetPath("shaders/light.frag").string()),
+	m_litShader(assetPath("shaders/lit.vert").string(), assetPath("shaders/lit.frag").string()),
+	m_unlitShader(assetPath("shaders/unlit.vert").string(), assetPath("shaders/unlit.frag").string()),
 	m_backpack(assetPath("models/backpack/backpack.obj"))
 {
 	m_window->setCamera(m_camera);
@@ -119,17 +119,17 @@ void App::renderFrame()
 	m_backpack.draw(m_litShader);
 
 	// Point light markers
-	m_lightShader.use();
-	m_lightShader.setMat4("view", view);
-	m_lightShader.setMat4("projection", projection);
-	m_lightShader.setVec3("lightColor", m_lightCube.getColorVec3());
+	m_unlitShader.use();
+	m_unlitShader.setMat4("view", view);
+	m_unlitShader.setMat4("projection", projection);
+	m_unlitShader.setVec3("lightColor", m_lightCube.getColorVec3());
 
 	m_lightCubeVao.bind();
 	for (const PointLight& light : m_scene.pointLights)
 	{
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), light.position);
 		model = glm::scale(model, glm::vec3(m_scene.lightCubeScale));
-		m_lightShader.setMat4("model", model);
+		m_unlitShader.setMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, m_lightCube.getVertexCount());
 	}
 	m_lightCubeVao.unbind();

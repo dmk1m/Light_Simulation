@@ -8,31 +8,31 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(Light_Simulation
     src/main.cpp
     src/app/App.cpp
-    src/buffers/IndexBuffer.cpp
-    src/buffers/VertexArray.cpp
-    src/buffers/VertexBuffer.cpp
-    src/camera/OpenGLCamera.cpp
+    src/camera/FlyCamera.cpp
     src/core/Assets.cpp
     src/core/Color.cpp
-    src/core/GLDebug.cpp
+    src/geometry/Box.cpp
+    src/geometry/Mesh.cpp
+    src/geometry/Model.cpp
     src/lighting/Lights.cpp
-    src/models/Mesh.cpp
-    src/models/Model.cpp
+    src/render/GLDebug.cpp
+    src/render/IndexBuffer.cpp
     src/render/Material.cpp
+    src/render/Shader.cpp
+    src/render/Texture.cpp
+    src/render/VertexArray.cpp
+    src/render/VertexBuffer.cpp
     src/scene/Scene.cpp
-    src/shader/OpenGLShader.cpp
-    src/shapes/Box.cpp
-    src/texture/TextureLoader.cpp
     src/window/GLFWindow.cpp
     # Third-party code compiled into the program
-    src/glad.c
-    externals/libs/stb_image.cpp
+    externals/src/glad.c
+    externals/src/stb_image.cpp
 )
 
 target_include_directories(Light_Simulation PRIVATE include)
 
-# Lets the program find shaders/, textures/ and models/ even when the build
-# directory is outside the source tree (see src/core/Assets.cpp).
+# Lets the program find assets/ even when the build directory is outside the
+# source tree (see src/core/Assets.cpp).
 target_compile_definitions(Light_Simulation PRIVATE
     LIGHTSIM_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 

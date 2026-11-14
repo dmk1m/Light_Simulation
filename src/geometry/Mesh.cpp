@@ -1,4 +1,4 @@
-#include <models/Mesh.h>
+#include <geometry/Mesh.h>
 
 #include <glad/glad.h>
 
@@ -28,7 +28,7 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
     m_vao.unbind();
 }
 
-void Mesh::draw(const OpenGLShader& shader) const
+void Mesh::draw(const Shader& shader) const
 {
     m_material.apply(shader);
 

@@ -1,4 +1,4 @@
-#include <shapes/Box.h>
+#include <geometry/Box.h>
 #include <glm/glm.hpp>
 #include <stdexcept>
 

@@ -8,7 +8,7 @@
 // Owns one linked OpenGL shader program. Move-only: copying would delete the
 // same program twice. The constructor throws std::runtime_error if a source
 // file can't be read or the shaders fail to compile or link.
-class OpenGLShader {
+class Shader {
 private:
     unsigned int m_id = 0;
 
@@ -21,13 +21,13 @@ private:
     int getUniformLocation(const std::string& name) const;
 
 public:
-    OpenGLShader(const std::string& vertexPath, const std::string& fragmentPath);
-    ~OpenGLShader();
+    Shader(const std::string& vertexPath, const std::string& fragmentPath);
+    ~Shader();
 
-    OpenGLShader(const OpenGLShader&) = delete;
-    OpenGLShader& operator=(const OpenGLShader&) = delete;
-    OpenGLShader(OpenGLShader&& other) noexcept;
-    OpenGLShader& operator=(OpenGLShader&& other) noexcept;
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
+    Shader(Shader&& other) noexcept;
+    Shader& operator=(Shader&& other) noexcept;
 
     // use/activate the shader
     void use() const;

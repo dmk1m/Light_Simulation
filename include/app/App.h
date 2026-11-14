@@ -1,13 +1,13 @@
 #pragma once
 
-#include <buffers/VertexArray.h>
-#include <buffers/VertexBuffer.h>
-#include <camera/OpenGLCamera.h>
-#include <models/Model.h>
+#include <render/VertexArray.h>
+#include <render/VertexBuffer.h>
+#include <camera/FlyCamera.h>
+#include <geometry/Model.h>
 #include <render/Material.h>
 #include <scene/Scene.h>
-#include <shader/OpenGLShader.h>
-#include <shapes/Box.h>
+#include <render/Shader.h>
+#include <geometry/Box.h>
 #include <window/Window.h>
 
 #include <glm/glm.hpp>
@@ -24,13 +24,13 @@ public:
 private:
 	// Declaration order matters: members are destroyed in reverse, so every
 	// GL resource below m_window is released while its context still exists.
-	OpenGLCamera m_camera;
+	FlyCamera m_camera;
 	std::unique_ptr<Window> m_window;
 
 	Scene m_scene;
 
-	OpenGLShader m_litShader;     // cube.vert/frag: textured, lit surfaces
-	OpenGLShader m_lightShader;   // light.vert/frag: unlit light markers
+	Shader m_litShader;     // lit.vert/frag: textured, lit surfaces
+	Shader m_unlitShader;   // unlit.vert/frag: unlit light markers
 
 	Box m_cube;
 	VertexBuffer m_cubeVbo;

@@ -439,13 +439,13 @@
     <None Include="externals\includes\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="shaders\cube.frag" />
-    <None Include="shaders\cube.vert" />
+    <None Include="assets\shaders\lit.frag" />
+    <None Include="assets\shaders\lit.vert" />
     <None Include="externals\libs\glfw3.pdb" />
-    <None Include="shaders\light.frag" />
-    <None Include="shaders\light.vert" />
-    <None Include="models\backpack\backpack.mtl" />
-    <None Include="models\backpack\backpack.obj" />
+    <None Include="assets\shaders\unlit.frag" />
+    <None Include="assets\shaders\unlit.vert" />
+    <None Include="assets\models\backpack\backpack.mtl" />
+    <None Include="assets\models\backpack\backpack.obj" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\includes\glad\glad.h">
@@ -1330,10 +1330,10 @@
     <ClInclude Include="externals\includes\KHR\khrplatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\camera\OpenGLCamera.h">
+    <ClInclude Include="include\camera\FlyCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\shader\OpenGLShader.h">
+    <ClInclude Include="include\render\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\window\GLFWindow.h">
@@ -1348,34 +1348,34 @@
     <ClInclude Include="include\camera\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\texture\OpenGLTexture.h">
+    <ClInclude Include="include\render\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\shapes\Box.h">
+    <ClInclude Include="include\geometry\Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\buffers\VertexBuffer.h">
+    <ClInclude Include="include\render\VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\buffers\VertexArray.h">
+    <ClInclude Include="include\render\VertexArray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\Mesh.h">
+    <ClInclude Include="include\geometry\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\Model.h">
+    <ClInclude Include="include\geometry\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\core\GLDebug.h">
+    <ClInclude Include="include\render\GLDebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\app\App.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\buffers\IndexBuffer.h">
+    <ClInclude Include="include\render\IndexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\buffers\VertexLayout.h">
+    <ClInclude Include="include\render\VertexLayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\core\Assets.h">
@@ -1401,13 +1401,13 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\GLDebug.cpp">
+    <ClCompile Include="src\render\GLDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\app\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\buffers\IndexBuffer.cpp">
+    <ClCompile Include="src\render\IndexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\Assets.cpp">
@@ -1422,10 +1422,10 @@
     <ClCompile Include="src\scene\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\glad.c">
+    <ClCompile Include="externals\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\shader\OpenGLShader.cpp">
+    <ClCompile Include="src\render\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\window\GLFWindow.cpp">
@@ -1434,28 +1434,28 @@
     <ClCompile Include="src\core\Color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\camera\OpenGLCamera.cpp">
+    <ClCompile Include="src\camera\FlyCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="externals\libs\stb_image.cpp">
+    <ClCompile Include="externals\src\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\shapes\Box.cpp">
+    <ClCompile Include="src\geometry\Box.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\buffers\VertexBuffer.cpp">
+    <ClCompile Include="src\render\VertexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\buffers\VertexArray.cpp">
+    <ClCompile Include="src\render\VertexArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\texture\TextureLoader.cpp">
+    <ClCompile Include="src\render\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\models\Mesh.cpp">
+    <ClCompile Include="src\geometry\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\models\Model.cpp">
+    <ClCompile Include="src\geometry\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1463,32 +1463,32 @@
     <Library Include="externals\libs\glfw3.lib" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="textures\container.jpg">
+    <Image Include="assets\textures\container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="textures\container2.png">
+    <Image Include="assets\textures\container2.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="textures\container2_specular.png">
+    <Image Include="assets\textures\container2_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="models\backpack\ao.jpg">
+    <Image Include="assets\models\backpack\ao.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="models\backpack\diffuse.jpg">
+    <Image Include="assets\models\backpack\diffuse.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="models\backpack\normal.png">
+    <Image Include="assets\models\backpack\normal.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="models\backpack\roughness.jpg">
+    <Image Include="assets\models\backpack\roughness.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="models\backpack\specular.jpg">
+    <Image Include="assets\models\backpack\specular.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="models\backpack\source_attribution.txt" />
+    <Text Include="assets\models\backpack\source_attribution.txt" />
   </ItemGroup>
 </Project>

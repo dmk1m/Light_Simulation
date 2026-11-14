@@ -1,15 +1,15 @@
 #pragma once
 
-#include <shader/OpenGLShader.h>
+#include <render/Shader.h>
 
 #include <glm/glm.hpp>
 
 #include <string>
 
-// Light types matching the structs in shaders/cube.frag. Each applyTo()
+// Light types matching the structs in shaders/lit.frag. Each applyTo()
 // writes the light's uniforms; the shader must be in use.
 
-// Must match MAX_POINT_LIGHTS in shaders/cube.frag.
+// Must match MAX_POINT_LIGHTS in shaders/lit.frag.
 inline constexpr int MaxPointLights = 8;
 
 struct Attenuation {
@@ -28,7 +28,7 @@ struct DirectionalLight {
 	glm::vec3 direction{ 0.0f, -1.0f, 0.0f };
 	LightColors colors;
 
-	void applyTo(const OpenGLShader& shader, const std::string& name = "dirLight") const;
+	void applyTo(const Shader& shader, const std::string& name = "dirLight") const;
 };
 
 struct PointLight {
@@ -37,7 +37,7 @@ struct PointLight {
 	Attenuation attenuation;
 
 	// name is the full array element, e.g. "pointLights[2]".
-	void applyTo(const OpenGLShader& shader, const std::string& name) const;
+	void applyTo(const Shader& shader, const std::string& name) const;
 };
 
 struct SpotLight {
@@ -48,5 +48,5 @@ struct SpotLight {
 	float innerCutOffDegrees = 12.5f;   // full intensity inside this cone
 	float outerCutOffDegrees = 15.0f;   // fades to zero at this cone
 
-	void applyTo(const OpenGLShader& shader, const std::string& name = "spotLight") const;
+	void applyTo(const Shader& shader, const std::string& name = "spotLight") const;
 };

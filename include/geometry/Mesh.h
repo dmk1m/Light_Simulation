@@ -1,11 +1,11 @@
 #pragma once
 
-#include <buffers/IndexBuffer.h>
-#include <buffers/VertexArray.h>
-#include <buffers/VertexBuffer.h>
-#include <buffers/VertexLayout.h>
+#include <render/IndexBuffer.h>
+#include <render/VertexArray.h>
+#include <render/VertexBuffer.h>
+#include <render/VertexLayout.h>
 #include <render/Material.h>
-#include <shader/OpenGLShader.h>
+#include <render/Shader.h>
 
 #include <glm/glm.hpp>
 
@@ -26,7 +26,7 @@ public:
     Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, Material material);
 
     // The shader must be in use; sets material.* and draws.
-    void draw(const OpenGLShader& shader) const;
+    void draw(const Shader& shader) const;
 
     const Material& getMaterial() const;
 

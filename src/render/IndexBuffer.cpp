@@ -1,4 +1,4 @@
-#include <buffers/IndexBuffer.h>
+#include <render/IndexBuffer.h>
 
 #include <utility>
 
