@@ -101,6 +101,8 @@ StyleCopReport.xml
 *.ilk
 *.meta
 *.obj
+# but keep Wavefront model files
+!models/**/*.obj
 *.idb
 *.iobj
 *.pch
