@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <buffers/VertexLayout.h>
+#include <render/VertexLayout.h>
 
 // Owns one OpenGL vertex array object. Move-only: copying would delete the
 // same VAO twice.

@@ -1,11 +1,11 @@
-#include <camera/OpenGLCamera.h>
+#include <camera/FlyCamera.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <algorithm>
 #include <cmath>
 
-OpenGLCamera::OpenGLCamera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+FlyCamera::FlyCamera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : m_position(position),
     m_worldUp(up),
     m_yaw(yaw),
@@ -14,12 +14,12 @@ OpenGLCamera::OpenGLCamera(glm::vec3 position, glm::vec3 up, float yaw, float pi
     updateCameraVectors();
 }
 
-glm::mat4 OpenGLCamera::getViewMatrix() const
+glm::mat4 FlyCamera::getViewMatrix() const
 {
     return glm::lookAt(m_position, m_position + m_front, m_up);
 }
 
-void OpenGLCamera::processKeyboard(Camera::Movement direction, float deltaTime)
+void FlyCamera::processKeyboard(Camera::Movement direction, float deltaTime)
 {
     const float velocity = m_movementSpeed * deltaTime;
 
@@ -32,7 +32,7 @@ void OpenGLCamera::processKeyboard(Camera::Movement direction, float deltaTime)
     }
 }
 
-void OpenGLCamera::processMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+void FlyCamera::processMouseMovement(float xoffset, float yoffset, bool constrainPitch)
 {
     m_yaw += xoffset * m_mouseSensitivity;
     m_pitch += yoffset * m_mouseSensitivity;
@@ -45,12 +45,12 @@ void OpenGLCamera::processMouseMovement(float xoffset, float yoffset, bool const
     updateCameraVectors();
 }
 
-void OpenGLCamera::processMouseScroll(float yoffset)
+void FlyCamera::processMouseScroll(float yoffset)
 {
     m_zoom = std::clamp(m_zoom - yoffset, Defaults::MinZoom, Defaults::MaxZoom);
 }
 
-void OpenGLCamera::updateCameraVectors()
+void FlyCamera::updateCameraVectors()
 {
     glm::vec3 front;
     front.x = std::cos(glm::radians(m_yaw)) * std::cos(glm::radians(m_pitch));
@@ -62,17 +62,17 @@ void OpenGLCamera::updateCameraVectors()
     m_up = glm::normalize(glm::cross(m_right, m_front));
 }
 
-float OpenGLCamera::getZoom() const
+float FlyCamera::getZoom() const
 {
     return m_zoom;
 }
 
-glm::vec3 OpenGLCamera::getPosition() const
+glm::vec3 FlyCamera::getPosition() const
 {
     return m_position;
 }
 
-glm::vec3 OpenGLCamera::getFront() const
+glm::vec3 FlyCamera::getFront() const
 {
     return m_front;
 }

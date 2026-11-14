@@ -36,23 +36,25 @@ cmake --build build/cmake
 macOS caps OpenGL at 4.1 and has deprecated it, so expect deprecation warnings there.
 
 ### Assets
-The program finds `shaders/`, `textures/` and `models/` by itself. It looks in the working directory first, then in the folders above the executable, then in the source directory recorded by CMake. You can start it from Visual Studio, by double-clicking the exe, or from any terminal.
+The program finds its `assets/` folder by itself. It looks in the working directory first, then in the folders above the executable, then in the source directory recorded by CMake. You can start it from Visual Studio, by double-clicking the exe, or from any terminal.
 
 ## Project layout
+Headers live in `include/` and mirror the folders in `src/`.
+
 | Path | Contents |
 |---|---|
 | `src/main.cpp` | Entry point: runs `App` and reports fatal errors |
 | `src/app/` | `App`: window, camera, GPU resources and the render loop |
 | `src/scene/` | `Scene`: light settings and object placement (`Scene::createDemo()`) |
 | `src/lighting/` | `DirectionalLight`, `PointLight`, `SpotLight`; each writes its own shader uniforms |
-| `src/render/` | `Material`: diffuse/specular maps and shininess |
-| `src/models/` | Assimp model loading (`Model`) and GPU meshes (`Mesh`) |
-| `src/buffers/` | RAII wrappers for VAOs, vertex and index buffers, plus `VertexLayout` |
-| `src/shader/`, `src/texture/` | Shader program and texture wrappers |
-| `src/shapes/` | `Box`: cube geometry generation |
-| `src/camera/`, `src/window/` | Fly-through camera and the GLFW window and input |
-| `src/core/` | Colors, asset path lookup, OpenGL debug output |
-| `shaders/` | GLSL: `cube.*` for lit surfaces, `light.*` for the light markers |
+| `src/render/` | OpenGL wrappers: `Shader`, `Texture`, `VertexArray`, `VertexBuffer`, `IndexBuffer`, `VertexLayout`, `Material`, debug output |
+| `src/geometry/` | `Box` cube generation, Assimp model loading (`Model`) and GPU meshes (`Mesh`) |
+| `src/camera/` | `Camera` interface and the `FlyCamera` implementation |
+| `src/window/` | `Window` interface and the GLFW implementation, including input |
+| `src/core/` | `Color` and asset path lookup |
+| `assets/shaders/` | GLSL: `lit.*` for textured, lit surfaces; `unlit.*` for the light markers |
+| `assets/textures/`, `assets/models/` | Images and the backpack model |
+| `externals/` | Third-party headers (`includes/`), sources compiled into the program (`src/`: glad, stb_image) and prebuilt libraries (`libs/`: GLFW, Assimp) |
 
 Every class that wraps an OpenGL object owns it: it frees the object when destroyed and can be moved but not copied.
 
@@ -62,5 +64,5 @@ Every class that wraps an OpenGL object owns it: it frees the object when destro
 - **Release builds:** `externals/libs` only contains the debug build of Assimp, which is also used for Release. Add a release build of Assimp to use a matching runtime.
 
 ## Credits and license
-- Backpack model: see `models/backpack/source_attribution.txt`.
+- Backpack model: see `assets/models/backpack/source_attribution.txt`.
 - Code license: see `LICENSE`.

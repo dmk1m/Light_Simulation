@@ -1,4 +1,4 @@
-#include <texture/OpenGLTexture.h>
+#include <render/Texture.h>
 
 #include <glad/glad.h>
 #include <stb/stb_image.h>
@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-OpenGLTexture::OpenGLTexture(const std::string& path)
+Texture::Texture(const std::string& path)
 {
 	unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_nrChannels, 0);
 	if (!data)
@@ -45,7 +45,7 @@ OpenGLTexture::OpenGLTexture(const std::string& path)
 	stbi_image_free(data);
 }
 
-OpenGLTexture::~OpenGLTexture()
+Texture::~Texture()
 {
 	if (m_textureID != 0)
 	{
@@ -53,14 +53,14 @@ OpenGLTexture::~OpenGLTexture()
 	}
 }
 
-OpenGLTexture::OpenGLTexture(OpenGLTexture&& other) noexcept
+Texture::Texture(Texture&& other) noexcept
 	: m_width(std::exchange(other.m_width, 0)),
 	m_height(std::exchange(other.m_height, 0)),
 	m_nrChannels(std::exchange(other.m_nrChannels, 0)),
 	m_textureID(std::exchange(other.m_textureID, 0))
 {}
 
-OpenGLTexture& OpenGLTexture::operator=(OpenGLTexture&& other) noexcept
+Texture& Texture::operator=(Texture&& other) noexcept
 {
 	if (this != &other)
 	{
@@ -76,38 +76,38 @@ OpenGLTexture& OpenGLTexture::operator=(OpenGLTexture&& other) noexcept
 	return *this;
 }
 
-int OpenGLTexture::getWidth() const
+int Texture::getWidth() const
 {
 	return m_width;
 }
 
-int OpenGLTexture::getHeight() const
+int Texture::getHeight() const
 {
 	return m_height;
 }
 
-int OpenGLTexture::getNrChannels() const
+int Texture::getNrChannels() const
 {
 	return m_nrChannels;
 }
 
-unsigned int OpenGLTexture::getTextureID() const
+unsigned int Texture::getTextureID() const
 {
 	return m_textureID;
 }
 
-void OpenGLTexture::bind() const
+void Texture::bind() const
 {
 	glBindTexture(GL_TEXTURE_2D, m_textureID);
 }
 
-void OpenGLTexture::bindToUnit(unsigned int unit) const
+void Texture::bindToUnit(unsigned int unit) const
 {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, m_textureID);
 }
 
-void OpenGLTexture::unbind() const
+void Texture::unbind() const
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

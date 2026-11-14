@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 namespace {
-	void bindOrClear(const std::shared_ptr<const OpenGLTexture>& texture, unsigned int unit)
+	void bindOrClear(const std::shared_ptr<const Texture>& texture, unsigned int unit)
 	{
 		if (texture)
 		{
@@ -17,7 +17,7 @@ namespace {
 	}
 }
 
-void Material::apply(const OpenGLShader& shader) const
+void Material::apply(const Shader& shader) const
 {
 	shader.setInt("material.diffuse", static_cast<int>(DiffuseUnit));
 	shader.setInt("material.specular", static_cast<int>(SpecularUnit));

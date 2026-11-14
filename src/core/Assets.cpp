@@ -37,24 +37,25 @@ namespace {
 		return {};
 	}
 
-	bool isAssetRoot(const fs::path& dir)
+	// A project root is a directory holding assets/shaders.
+	bool isProjectRoot(const fs::path& dir)
 	{
 		std::error_code ec;
-		return fs::is_directory(dir / "shaders", ec);
+		return fs::is_directory(dir / "assets" / "shaders", ec);
 	}
 
-	fs::path findAssetRoot()
+	fs::path findProjectRoot()
 	{
 		std::error_code ec;
 		const fs::path cwd = fs::current_path(ec);
-		if (!ec && isAssetRoot(cwd))
+		if (!ec && isProjectRoot(cwd))
 		{
 			return cwd;
 		}
 
 		for (fs::path dir = executableDirectory(); !dir.empty(); dir = dir.parent_path())
 		{
-			if (isAssetRoot(dir))
+			if (isProjectRoot(dir))
 			{
 				return dir;
 			}
@@ -66,7 +67,7 @@ namespace {
 
 #ifdef LIGHTSIM_SOURCE_DIR
 		// Set by CMake, for build directories outside the source tree.
-		if (isAssetRoot(LIGHTSIM_SOURCE_DIR))
+		if (isProjectRoot(LIGHTSIM_SOURCE_DIR))
 		{
 			return fs::path(LIGHTSIM_SOURCE_DIR);
 		}
@@ -77,7 +78,7 @@ namespace {
 
 const fs::path& assetRoot()
 {
-	static const fs::path root = findAssetRoot();
+	static const fs::path root = findProjectRoot() / "assets";
 	return root;
 }
 

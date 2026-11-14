@@ -1,4 +1,4 @@
-#include <models/Model.h>
+#include <geometry/Model.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/material.h>
@@ -40,7 +40,7 @@ Model::Model(const std::filesystem::path& path)
 	processNode(scene->mRootNode, scene);
 }
 
-void Model::draw(const OpenGLShader& shader) const
+void Model::draw(const Shader& shader) const
 {
 	for (const Mesh& mesh : m_meshes)
 	{
@@ -113,7 +113,7 @@ Material Model::loadMaterial(const aiMaterial* aiMat)
 	return material;
 }
 
-std::shared_ptr<const OpenGLTexture> Model::loadTexture(const std::string& relativePath)
+std::shared_ptr<const Texture> Model::loadTexture(const std::string& relativePath)
 {
 	if (relativePath.empty())
 	{
@@ -126,10 +126,10 @@ std::shared_ptr<const OpenGLTexture> Model::loadTexture(const std::string& relat
 		return cached->second;
 	}
 
-	std::shared_ptr<const OpenGLTexture> texture;
+	std::shared_ptr<const Texture> texture;
 	try
 	{
-		texture = std::make_shared<const OpenGLTexture>((m_directory / relativePath).string());
+		texture = std::make_shared<const Texture>((m_directory / relativePath).string());
 	}
 	catch (const std::exception& e)
 	{

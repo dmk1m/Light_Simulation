@@ -1,5 +1,5 @@
 #pragma once
-#include <buffers/VertexLayout.h>
+#include <render/VertexLayout.h>
 #include <core/Color.h>
 #include <glm/glm.hpp>
 

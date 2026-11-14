@@ -1,8 +1,8 @@
 #pragma once
 
-#include <models/Mesh.h>
-#include <shader/OpenGLShader.h>
-#include <texture/OpenGLTexture.h>
+#include <geometry/Mesh.h>
+#include <render/Shader.h>
+#include <render/Texture.h>
 
 #include <filesystem>
 #include <memory>
@@ -28,15 +28,15 @@ public:
 	Model& operator=(Model&&) noexcept = default;
 
 	// The shader must be in use; draws every mesh with its own material.
-	void draw(const OpenGLShader& shader) const;
+	void draw(const Shader& shader) const;
 
 private:
 	std::vector<Mesh> m_meshes;
 	std::filesystem::path m_directory;
-	std::unordered_map<std::string, std::shared_ptr<const OpenGLTexture>> m_textureCache;
+	std::unordered_map<std::string, std::shared_ptr<const Texture>> m_textureCache;
 
 	void processNode(const aiNode* node, const aiScene* scene);
 	Mesh processMesh(const aiMesh* mesh, const aiScene* scene);
 	Material loadMaterial(const aiMaterial* material);
-	std::shared_ptr<const OpenGLTexture> loadTexture(const std::string& relativePath);
+	std::shared_ptr<const Texture> loadTexture(const std::string& relativePath);
 };

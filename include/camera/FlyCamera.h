@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 // Fly-through camera driven by Euler angles (yaw/pitch).
-class OpenGLCamera : public Camera {
+class FlyCamera : public Camera {
 public:
 	struct Defaults {
 		static constexpr float Yaw = -90.0f;
@@ -17,7 +17,7 @@ public:
 		static constexpr float MaxPitch = 89.0f;
 	};
 
-	explicit OpenGLCamera(
+	explicit FlyCamera(
 		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
 		float yaw = Defaults::Yaw,

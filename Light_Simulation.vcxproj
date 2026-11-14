@@ -132,7 +132,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;unit.lib;assimp-vc145-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc145-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -155,7 +155,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;unit.lib;assimp-vc145-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc145-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -309,12 +309,12 @@
     <None Include="externals\libs\glfw3.pdb" />
     <None Include="LICENSE" />
     <None Include="Light_Simulation.slnx" />
-    <None Include="models\backpack\backpack.mtl" />
+    <None Include="assets\models\backpack\backpack.mtl" />
     <None Include="README.md" />
-    <None Include="shaders\cube.frag" />
-    <None Include="shaders\cube.vert" />
-    <None Include="shaders\light.vert" />
-    <None Include="shaders\light.frag" />
+    <None Include="assets\shaders\lit.frag" />
+    <None Include="assets\shaders\lit.vert" />
+    <None Include="assets\shaders\unlit.vert" />
+    <None Include="assets\shaders\unlit.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\includes\glad\glad.h" />
@@ -611,22 +611,22 @@
     <ClInclude Include="externals\includes\glm\vec4.hpp" />
     <ClInclude Include="externals\includes\glm\vector_relational.hpp" />
     <ClInclude Include="externals\includes\KHR\khrplatform.h" />
-    <ClInclude Include="include\buffers\VertexArray.h" />
-    <ClInclude Include="include\buffers\VertexBuffer.h" />
+    <ClInclude Include="include\render\VertexArray.h" />
+    <ClInclude Include="include\render\VertexBuffer.h" />
     <ClInclude Include="include\camera\Camera.h" />
-    <ClInclude Include="include\camera\OpenGLCamera.h" />
+    <ClInclude Include="include\camera\FlyCamera.h" />
     <ClInclude Include="include\core\Color.h" />
-    <ClInclude Include="include\models\Mesh.h" />
-    <ClInclude Include="include\models\Model.h" />
-    <ClInclude Include="include\shader\OpenGLShader.h" />
-    <ClInclude Include="include\shapes\Box.h" />
-    <ClInclude Include="include\texture\OpenGLTexture.h" />
+    <ClInclude Include="include\geometry\Mesh.h" />
+    <ClInclude Include="include\geometry\Model.h" />
+    <ClInclude Include="include\render\Shader.h" />
+    <ClInclude Include="include\geometry\Box.h" />
+    <ClInclude Include="include\render\Texture.h" />
     <ClInclude Include="include\window\GLFWindow.h" />
     <ClInclude Include="include\window\Window.h" />
-    <ClInclude Include="include\core\GLDebug.h" />
+    <ClInclude Include="include\render\GLDebug.h" />
     <ClInclude Include="include\app\App.h" />
-    <ClInclude Include="include\buffers\IndexBuffer.h" />
-    <ClInclude Include="include\buffers\VertexLayout.h" />
+    <ClInclude Include="include\render\IndexBuffer.h" />
+    <ClInclude Include="include\render\VertexLayout.h" />
     <ClInclude Include="include\core\Assets.h" />
     <ClInclude Include="include\lighting\Lights.h" />
     <ClInclude Include="include\render\Material.h" />
@@ -639,24 +639,24 @@
     <ClCompile Include="externals\includes\glm\glm.cppm">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
-    <ClCompile Include="externals\libs\stb_image.cpp">
+    <ClCompile Include="externals\src\stb_image.cpp">
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
-    <ClCompile Include="src\buffers\VertexArray.cpp" />
-    <ClCompile Include="src\buffers\VertexBuffer.cpp" />
-    <ClCompile Include="src\camera\OpenGLCamera.cpp" />
+    <ClCompile Include="src\render\VertexArray.cpp" />
+    <ClCompile Include="src\render\VertexBuffer.cpp" />
+    <ClCompile Include="src\camera\FlyCamera.cpp" />
     <ClCompile Include="src\core\Color.cpp" />
-    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="externals\src\glad.c" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\models\Mesh.cpp" />
-    <ClCompile Include="src\models\Model.cpp" />
-    <ClCompile Include="src\shader\OpenGLShader.cpp" />
-    <ClCompile Include="src\shapes\Box.cpp" />
-    <ClCompile Include="src\texture\TextureLoader.cpp" />
+    <ClCompile Include="src\geometry\Mesh.cpp" />
+    <ClCompile Include="src\geometry\Model.cpp" />
+    <ClCompile Include="src\render\Shader.cpp" />
+    <ClCompile Include="src\geometry\Box.cpp" />
+    <ClCompile Include="src\render\Texture.cpp" />
     <ClCompile Include="src\window\GLFWindow.cpp" />
-    <ClCompile Include="src\core\GLDebug.cpp" />
+    <ClCompile Include="src\render\GLDebug.cpp" />
     <ClCompile Include="src\app\App.cpp" />
-    <ClCompile Include="src\buffers\IndexBuffer.cpp" />
+    <ClCompile Include="src\render\IndexBuffer.cpp" />
     <ClCompile Include="src\core\Assets.cpp" />
     <ClCompile Include="src\lighting\Lights.cpp" />
     <ClCompile Include="src\render\Material.cpp" />
@@ -666,24 +666,24 @@
     <Library Include="externals\libs\glfw3.lib" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="models\backpack\ao.jpg" />
-    <Image Include="models\backpack\diffuse.jpg" />
-    <Image Include="models\backpack\normal.png" />
-    <Image Include="models\backpack\roughness.jpg" />
-    <Image Include="models\backpack\specular.jpg" />
-    <Image Include="textures\container.jpg" />
-    <Image Include="textures\container2.png" />
-    <Image Include="textures\container2_specular.png" />
+    <Image Include="assets\models\backpack\ao.jpg" />
+    <Image Include="assets\models\backpack\diffuse.jpg" />
+    <Image Include="assets\models\backpack\normal.png" />
+    <Image Include="assets\models\backpack\roughness.jpg" />
+    <Image Include="assets\models\backpack\specular.jpg" />
+    <Image Include="assets\textures\container.jpg" />
+    <Image Include="assets\textures\container2.png" />
+    <Image Include="assets\textures\container2_specular.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="models\backpack\backpack.obj">
+    <None Include="assets\models\backpack\backpack.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="models\backpack\source_attribution.txt" />
+    <Text Include="assets\models\backpack\source_attribution.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

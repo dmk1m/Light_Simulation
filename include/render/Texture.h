@@ -5,7 +5,7 @@
 // Owns one OpenGL 2D texture loaded from an image file (mipmapped, repeat
 // wrapping). Move-only: copying would delete the same texture twice.
 // The constructor throws std::runtime_error if the image can't be loaded.
-class OpenGLTexture {
+class Texture {
 private:
 	int m_width = 0;
 	int m_height = 0;
@@ -14,13 +14,13 @@ private:
 	unsigned int m_textureID = 0;
 
 public:
-	explicit OpenGLTexture(const std::string& path);
-	~OpenGLTexture();
+	explicit Texture(const std::string& path);
+	~Texture();
 
-	OpenGLTexture(const OpenGLTexture&) = delete;
-	OpenGLTexture& operator=(const OpenGLTexture&) = delete;
-	OpenGLTexture(OpenGLTexture&& other) noexcept;
-	OpenGLTexture& operator=(OpenGLTexture&& other) noexcept;
+	Texture(const Texture&) = delete;
+	Texture& operator=(const Texture&) = delete;
+	Texture(Texture&& other) noexcept;
+	Texture& operator=(Texture&& other) noexcept;
 
 	int getWidth() const;
 	int getHeight() const;
