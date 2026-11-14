@@ -63,6 +63,14 @@ namespace {
 				break;  // reached the filesystem root
 			}
 		}
+
+#ifdef LIGHTSIM_SOURCE_DIR
+		// Set by CMake, for build directories outside the source tree.
+		if (isAssetRoot(LIGHTSIM_SOURCE_DIR))
+		{
+			return fs::path(LIGHTSIM_SOURCE_DIR);
+		}
+#endif
 		return ec ? fs::path(".") : cwd;
 	}
 }
