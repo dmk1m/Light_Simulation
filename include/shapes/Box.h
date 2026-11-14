@@ -1,7 +1,9 @@
 #pragma once
+#include <buffers/VertexLayout.h>
 #include <core/Color.h>
 #include <glm/glm.hpp>
 
+#include <cstddef>
 #include <vector>
 
 enum class VertexAttribute {
@@ -11,13 +13,15 @@ enum class VertexAttribute {
 	Normal = 1 << 3
 };
 
+// CPU-side geometry for a box centered on the origin (36 vertices, no
+// indices). Place it in the world with a model matrix. Optional per-vertex
+// attributes (color, texture coordinates, normals) can be switched on.
 class Box {
 private:
 	float m_width;
 	float m_height;
 	float m_depth;
 
-	glm::vec3 m_position;
 	Color m_color;
 
 	unsigned int m_attributes;
@@ -43,8 +47,7 @@ private:
 
 	void buildVertices();
 public:
-	Box(float x, float y, float z, float width, float height, float depth, Color color);
-	Box(int x, int y, int z, int width, int height, int depth, Color color);
+	explicit Box(float width = 1.0f, float height = 1.0f, float depth = 1.0f, Color color = Color::White);
 
 	float getWidth() const;
 	float getHeight() const;
@@ -53,10 +56,6 @@ public:
 	void setWidth(float width);
 	void setHeight(float height);
 	void setDepth(float depth);
-
-	glm::vec3 getPosition() const;
-	void setPosition(float x, float y, float z);
-	void setPosition(const glm::vec3& position);
 
 	Color getColor() const;
 	glm::vec3 getColorVec3() const;
@@ -80,6 +79,9 @@ public:
 	std::size_t getStrideFloats() const;
 	std::size_t getStrideBytes() const;
 	int getVertexCount() const;
+
+	// Layout of getVertices(), for VertexArray::setLayout.
+	VertexLayout getLayout() const;
 
 	std::size_t getPositionOffsetBytes() const;
 	std::size_t getColorOffsetBytes() const;

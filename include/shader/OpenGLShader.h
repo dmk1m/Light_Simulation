@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <string>
+#include <unordered_map>
 
 // Owns one linked OpenGL shader program. Move-only: copying would delete the
 // same program twice. The constructor throws std::runtime_error if a source
@@ -11,11 +12,16 @@ class OpenGLShader {
 private:
     unsigned int m_id = 0;
 
-    static std::string readShaderFromFile(const char* shaderPath);
-    static unsigned int compileStage(GLenum stage, const std::string& source, const char* path);
+    // Uniform name -> location, filled on first use (-1 for unknown names).
+    mutable std::unordered_map<std::string, int> m_uniformLocations;
+
+    static std::string readShaderFromFile(const std::string& shaderPath);
+    static unsigned int compileStage(GLenum stage, const std::string& source, const std::string& path);
+
+    int getUniformLocation(const std::string& name) const;
 
 public:
-    OpenGLShader(const char* vertexPath, const char* fragmentPath);
+    OpenGLShader(const std::string& vertexPath, const std::string& fragmentPath);
     ~OpenGLShader();
 
     OpenGLShader(const OpenGLShader&) = delete;
@@ -34,5 +40,7 @@ public:
     void setVec2(const std::string& name, float x, float y) const;
     void setVec3(const std::string& name, float x, float y, float z) const;
     void setVec3(const std::string& name, const glm::vec3& value) const;
+    void setVec4(const std::string& name, const glm::vec4& value) const;
+    void setMat3(const std::string& name, const glm::mat3& mat) const;
     void setMat4(const std::string& name, const glm::mat4& mat) const;
 };

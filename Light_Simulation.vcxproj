@@ -617,6 +617,13 @@
     <ClInclude Include="include\texture\OpenGLTexture.h" />
     <ClInclude Include="include\window\GLFWindow.h" />
     <ClInclude Include="include\window\Window.h" />
+    <ClInclude Include="include\app\App.h" />
+    <ClInclude Include="include\buffers\IndexBuffer.h" />
+    <ClInclude Include="include\buffers\VertexLayout.h" />
+    <ClInclude Include="include\core\Assets.h" />
+    <ClInclude Include="include\lighting\Lights.h" />
+    <ClInclude Include="include\render\Material.h" />
+    <ClInclude Include="include\scene\Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\includes\glm\detail\glm.cpp" />
@@ -634,6 +641,12 @@
     <ClCompile Include="src\shapes\Box.cpp" />
     <ClCompile Include="src\texture\TextureLoader.cpp" />
     <ClCompile Include="src\window\GLFWindow.cpp" />
+    <ClCompile Include="src\app\App.cpp" />
+    <ClCompile Include="src\buffers\IndexBuffer.cpp" />
+    <ClCompile Include="src\core\Assets.cpp" />
+    <ClCompile Include="src\lighting\Lights.cpp" />
+    <ClCompile Include="src\render\Material.cpp" />
+    <ClCompile Include="src\scene\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="externals\libs\glfw3.lib" />

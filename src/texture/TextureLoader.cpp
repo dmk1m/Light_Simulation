@@ -7,12 +7,12 @@
 #include <string>
 #include <utility>
 
-OpenGLTexture::OpenGLTexture(const char* path)
+OpenGLTexture::OpenGLTexture(const std::string& path)
 {
-	unsigned char* data = stbi_load(path, &m_width, &m_height, &m_nrChannels, 0);
+	unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_nrChannels, 0);
 	if (!data)
 	{
-		throw std::runtime_error(std::string("Failed to load texture: ") + path);
+		throw std::runtime_error("Failed to load texture: " + path);
 	}
 
 	GLenum format;
@@ -24,7 +24,7 @@ OpenGLTexture::OpenGLTexture(const char* path)
 	case 4: format = GL_RGBA; break;
 	default:
 		stbi_image_free(data);
-		throw std::runtime_error(std::string("Unsupported texture channel count: ") + path);
+		throw std::runtime_error("Unsupported texture channel count: " + path);
 	}
 
 	glGenTextures(1, &m_textureID);
@@ -98,6 +98,12 @@ unsigned int OpenGLTexture::getTextureID() const
 
 void OpenGLTexture::bind() const
 {
+	glBindTexture(GL_TEXTURE_2D, m_textureID);
+}
+
+void OpenGLTexture::bindToUnit(unsigned int unit) const
+{
+	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, m_textureID);
 }
 
