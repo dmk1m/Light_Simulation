@@ -1,5 +1,7 @@
 #pragma once
 
+// Owns one OpenGL 2D texture. Move-only: copying would delete the same
+// texture twice.
 class OpenGLTexture {
 private:
 	int m_width = 0;
@@ -10,6 +12,12 @@ private:
 
 public:
 	explicit OpenGLTexture(const char* path);
+	~OpenGLTexture();
+
+	OpenGLTexture(const OpenGLTexture&) = delete;
+	OpenGLTexture& operator=(const OpenGLTexture&) = delete;
+	OpenGLTexture(OpenGLTexture&& other) noexcept;
+	OpenGLTexture& operator=(OpenGLTexture&& other) noexcept;
 
 	int getWidth() const;
 	int getHeight() const;

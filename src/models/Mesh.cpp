@@ -5,15 +5,53 @@
 
 #include <cstddef>
 #include <string>
+#include <utility>
 #include <vector>
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+    : vertices(std::move(vertices)),
+    indices(std::move(indices)),
+    textures(std::move(textures))
 {
-    this->vertices = vertices;
-    this->indices = indices;
-    this->textures = textures;
-
     setupMesh();
+}
+
+Mesh::~Mesh()
+{
+    release();
+}
+
+Mesh::Mesh(Mesh&& other) noexcept
+    : vertices(std::move(other.vertices)),
+    indices(std::move(other.indices)),
+    textures(std::move(other.textures)),
+    VAO(std::exchange(other.VAO, 0)),
+    VBO(std::exchange(other.VBO, 0)),
+    EBO(std::exchange(other.EBO, 0))
+{}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept
+{
+    if (this != &other)
+    {
+        release();
+        vertices = std::move(other.vertices);
+        indices = std::move(other.indices);
+        textures = std::move(other.textures);
+        VAO = std::exchange(other.VAO, 0);
+        VBO = std::exchange(other.VBO, 0);
+        EBO = std::exchange(other.EBO, 0);
+    }
+    return *this;
+}
+
+void Mesh::release()
+{
+    // glDelete* silently ignores 0, so moved-from meshes are safe here.
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    VAO = VBO = EBO = 0;
 }
 
 void Mesh::setupMesh()
@@ -25,11 +63,11 @@ void Mesh::setupMesh()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-                 &indices[0], GL_STATIC_DRAW);
+                 indices.data(), GL_STATIC_DRAW);
 
     // Attribute locations must match shaders/cube.vert and VertexArray::setLayout:
     // 0 = position, 2 = texture coords, 3 = normal (1 is reserved for vertex color).
@@ -47,7 +85,7 @@ void Mesh::setupMesh()
     glBindVertexArray(0);
 }
 
-void Mesh::Draw(OpenGLShader& shader)
+void Mesh::Draw(const OpenGLShader& shader) const
 {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
