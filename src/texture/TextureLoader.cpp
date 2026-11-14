@@ -4,9 +4,28 @@
 #include <stb/stb_image.h>
 
 #include <stdexcept>
+#include <string>
 
 OpenGLTexture::OpenGLTexture(const char* path)
 {
+	unsigned char* data = stbi_load(path, &m_width, &m_height, &m_nrChannels, 0);
+	if (!data)
+	{
+		throw std::runtime_error(std::string("Failed to load texture: ") + path);
+	}
+
+	GLenum format;
+	switch (m_nrChannels)
+	{
+	case 1: format = GL_RED;  break;
+	case 2: format = GL_RG;   break;
+	case 3: format = GL_RGB;  break;
+	case 4: format = GL_RGBA; break;
+	default:
+		stbi_image_free(data);
+		throw std::runtime_error(std::string("Unsupported texture channel count: ") + path);
+	}
+
 	glGenTextures(1, &m_textureID);
 	glBindTexture(GL_TEXTURE_2D, m_textureID);
 
@@ -16,14 +35,13 @@ OpenGLTexture::OpenGLTexture(const char* path)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	m_data = stbi_load(path, &m_width, &m_height, &nrChannels, 0);
-	if (!m_data)
-	{
-		throw std::runtime_error("Failed to load texture!");
-	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_data);
+	// Rows of RGB/RG/R images are not necessarily 4-byte aligned.
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(m_data);
+
+	stbi_image_free(data);
 }
 
 int OpenGLTexture::getWidth() const
@@ -38,17 +56,12 @@ int OpenGLTexture::getHeight() const
 
 int OpenGLTexture::getNrChannels() const
 {
-	return nrChannels;
+	return m_nrChannels;
 }
 
 unsigned int OpenGLTexture::getTextureID() const
 {
 	return m_textureID;
-}
-
-unsigned char* OpenGLTexture::getData() const
-{
-	return m_data;
 }
 
 void OpenGLTexture::bind() const
