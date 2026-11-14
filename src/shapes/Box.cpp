@@ -91,12 +91,12 @@ void Box::buildVertices()
 	float halfHeight = m_height / 2.0f;
 	float halfDepth = m_depth / 2.0f;
 
-	float left = m_position.x - halfWidth;
-	float right = m_position.x + halfWidth;
-	float bottom = m_position.y - halfHeight;
-	float top = m_position.y + halfHeight;
-	float back = m_position.z - halfDepth;
-	float front = m_position.z + halfDepth;
+	float left = -halfWidth;
+	float right = halfWidth;
+	float bottom = -halfHeight;
+	float top = halfHeight;
+	float back = -halfDepth;
+	float front = halfDepth;
 
 	glm::vec3 LBF(left, bottom, front);
 	glm::vec3 RBF(right, bottom, front);
@@ -129,11 +129,10 @@ void Box::buildVertices()
 
 // Constructors =============================================================
 
-Box::Box(float x, float y, float z, float width, float height, float depth, Color color)
+Box::Box(float width, float height, float depth, Color color)
 	: m_width(width),
 	m_height(height),
 	m_depth(depth),
-	m_position(x, y, z),
 	m_color(color),
 	m_attributes(static_cast<unsigned int>(VertexAttribute::Position)),
 	m_strideFloats(3)
@@ -145,11 +144,6 @@ Box::Box(float x, float y, float z, float width, float height, float depth, Colo
 
 	buildVertices();
 }
-
-Box::Box(int x, int y, int z, int width, int height, int depth, Color color)
-	: Box(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z),
-		  static_cast<float>(width), static_cast<float>(height), static_cast<float>(depth), color)
-{}
 
 // Public functions ========================================================
 
@@ -195,23 +189,6 @@ void Box::setDepth(float depth)
 		throw std::runtime_error("Depth must be greater than zero.");
 	}
 	m_depth = depth;
-	buildVertices();
-}
-
-glm::vec3 Box::getPosition() const
-{
-	return m_position;
-}
-
-void Box::setPosition(float x, float y, float z)
-{
-	m_position = glm::vec3(x, y, z);
-	buildVertices();
-}
-
-void Box::setPosition(const glm::vec3& position)
-{
-	m_position = position;
 	buildVertices();
 }
 
@@ -310,6 +287,26 @@ int Box::getVertexCount() const
 	}
 
 	return static_cast<int>(m_vertices.size() / m_strideFloats);
+}
+
+VertexLayout Box::getLayout() const
+{
+	VertexLayout layout;
+	layout.strideBytes = getStrideBytes();
+	layout.attributes.push_back({ AttribLocation::Position, 3, getPositionOffsetBytes() });
+	if (hasColor())
+	{
+		layout.attributes.push_back({ AttribLocation::Color, 3, getColorOffsetBytes() });
+	}
+	if (hasTextureCoordinate())
+	{
+		layout.attributes.push_back({ AttribLocation::TexCoord, 2, getTextureCoordinatesOffsetBytes() });
+	}
+	if (hasNormal())
+	{
+		layout.attributes.push_back({ AttribLocation::Normal, 3, getNormalOffsetBytes() });
+	}
+	return layout;
 }
 
 std::size_t Box::getPositionOffsetBytes() const

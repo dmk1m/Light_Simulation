@@ -47,62 +47,21 @@ unsigned int VertexArray::getID() const
     return m_id;
 }
 
-void VertexArray::setLayout(const Box& box)
+void VertexArray::setLayout(const VertexLayout& layout)
 {
     bind();
 
-    GLsizei stride = static_cast<GLsizei>(box.getStrideBytes());
-
-    // Position: location 0
-    glVertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        stride,
-        reinterpret_cast<void*>(box.getPositionOffsetBytes())
-    );
-    glEnableVertexAttribArray(0);
-
-    // Color: location 1
-    if (box.hasColor())
+    const GLsizei stride = static_cast<GLsizei>(layout.strideBytes);
+    for (const VertexAttributeDesc& attribute : layout.attributes)
     {
         glVertexAttribPointer(
-            1,
-            3,
+            attribute.location,
+            attribute.components,
             GL_FLOAT,
             GL_FALSE,
             stride,
-            reinterpret_cast<void*>(box.getColorOffsetBytes())
+            reinterpret_cast<void*>(attribute.offsetBytes)
         );
-        glEnableVertexAttribArray(1);
-    }
-
-    // Texture coordinate: location 2
-    if (box.hasTextureCoordinate())
-    {
-        glVertexAttribPointer(
-            2,
-            2,
-            GL_FLOAT,
-            GL_FALSE,
-            stride,
-            reinterpret_cast<void*>(box.getTextureCoordinatesOffsetBytes())
-        );
-        glEnableVertexAttribArray(2);
-    }
-
-    // Normal: location 3
-    if (box.hasNormal())
-    {
-        glVertexAttribPointer(
-            3,
-            3,
-            GL_FLOAT,
-            GL_FALSE,
-            stride,
-            reinterpret_cast<void*>(box.getNormalOffsetBytes())
-        );
-        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(attribute.location);
     }
 }

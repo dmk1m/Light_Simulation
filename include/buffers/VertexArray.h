@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <shapes/Box.h>
+#include <buffers/VertexLayout.h>
 
 // Owns one OpenGL vertex array object. Move-only: copying would delete the
 // same VAO twice.
@@ -21,7 +21,9 @@ public:
     void bind() const;
     void unbind() const;
 
-    void setLayout(const Box& box);
+    // Binds this VAO and records the layout for the currently bound
+    // GL_ARRAY_BUFFER.
+    void setLayout(const VertexLayout& layout);
 
     unsigned int getID() const;
 };

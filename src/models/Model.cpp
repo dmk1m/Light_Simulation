@@ -1,233 +1,141 @@
 #include <models/Model.h>
-#include <models/Mesh.h>
-#include <shader/OpenGLShader.h>
 
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
+#include <assimp/material.h>
 #include <assimp/postprocess.h>
-#include <stb/stb_image.h>
+#include <assimp/scene.h>
 
-#include <cstring>
+#include <exception>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
-Model::Model(const char* path) {
-	try
+namespace {
+	// Path of the first texture of the given type, or empty if there is none.
+	std::string firstTexturePath(const aiMaterial* material, aiTextureType type)
 	{
-		loadModel(path);
-	}
-	catch (...)
-	{
-		// The destructor won't run for a half-built object, so free what was loaded.
-		releaseTextures();
-		throw;
-	}
-}
-
-Model::~Model()
-{
-	releaseTextures();
-}
-
-Model::Model(Model&& other) noexcept
-	: m_textures_loaded(std::exchange(other.m_textures_loaded, {})),
-	m_meshes(std::move(other.m_meshes)),
-	m_directory(std::move(other.m_directory))
-{}
-
-Model& Model::operator=(Model&& other) noexcept
-{
-	if (this != &other)
-	{
-		releaseTextures();
-		m_textures_loaded = std::exchange(other.m_textures_loaded, {});
-		m_meshes = std::move(other.m_meshes);
-		m_directory = std::move(other.m_directory);
-	}
-	return *this;
-}
-
-void Model::releaseTextures()
-{
-	for (const Texture& texture : m_textures_loaded)
-	{
-		glDeleteTextures(1, &texture.id);
-	}
-	m_textures_loaded.clear();
-}
-
-void Model::Draw(const OpenGLShader& shader) const
-{
-	for (const Mesh& mesh : m_meshes)
-	{
-		mesh.Draw(shader);
+		if (material->GetTextureCount(type) == 0)
+		{
+			return {};
+		}
+		aiString path;
+		material->GetTexture(type, 0, &path);
+		return path.C_Str();
 	}
 }
 
-void Model::loadModel(std::string path)
+Model::Model(const std::filesystem::path& path)
 {
-	Assimp::Importer import;
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(
+		path.string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		throw std::runtime_error("Failed to load model '" + path + "': " + import.GetErrorString());
+		throw std::runtime_error("Failed to load model '" + path.string() + "': " + importer.GetErrorString());
 	}
-	const std::size_t slash = path.find_last_of("/\\");
-	m_directory = slash == std::string::npos ? "." : path.substr(0, slash);
+
+	m_directory = path.parent_path();
 	processNode(scene->mRootNode, scene);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
+void Model::draw(const OpenGLShader& shader) const
 {
-	// process all the node's meshes (if any)
+	for (const Mesh& mesh : m_meshes)
+	{
+		mesh.draw(shader);
+	}
+}
+
+void Model::processNode(const aiNode* node, const aiScene* scene)
+{
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		m_meshes.push_back(processMesh(mesh, scene));
+		m_meshes.push_back(processMesh(scene->mMeshes[node->mMeshes[i]], scene));
 	}
-	// then do the same for each of its children
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
 		processNode(node->mChildren[i], scene);
 	}
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<Texture> textures;
+	vertices.reserve(mesh->mNumVertices);
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
+		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
-		// Position
-		glm::vec3 vector;
-		vector.x = mesh->mVertices[i].x;
-		vector.y = mesh->mVertices[i].y;
-		vector.z = mesh->mVertices[i].z;
-		vertex.Position = vector;
+		// aiProcess_GenSmoothNormals fills these in, but points/lines have none.
+		vertex.Normal = mesh->HasNormals()
+			? glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z)
+			: glm::vec3(0.0f, 1.0f, 0.0f);
 
-		// Normal (aiProcess_GenSmoothNormals fills these in, but points/lines have none)
-		if (mesh->HasNormals())
-		{
-			vector.x = mesh->mNormals[i].x;
-			vector.y = mesh->mNormals[i].y;
-			vector.z = mesh->mNormals[i].z;
-			vertex.Normal = vector;
-		}
-		else
-			vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
-
-		// Texture Coordinates
-		if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-		{
-			glm::vec2 vec;
-			vec.x = mesh->mTextureCoords[0][i].x;
-			vec.y = mesh->mTextureCoords[0][i].y;
-			vertex.TexCoords = vec;
-		}
-		else
-			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+		vertex.TexCoords = mesh->HasTextureCoords(0)
+			? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y)
+			: glm::vec2(0.0f);
 
 		vertices.push_back(vertex);
 	}
 
+	std::vector<unsigned int> indices;
+	indices.reserve(static_cast<std::size_t>(mesh->mNumFaces) * 3);
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 	{
-		aiFace face = mesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; j++)
-			indices.push_back(face.mIndices[j]);
+		const aiFace& face = mesh->mFaces[i];
+		indices.insert(indices.end(), face.mIndices, face.mIndices + face.mNumIndices);
 	}
 
+	Material material;
 	if (mesh->mMaterialIndex < scene->mNumMaterials)
 	{
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		std::vector<Texture> specularMaps = loadMaterialTextures(material,
-															aiTextureType_SPECULAR, "texture_specular");
-		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+		material = loadMaterial(scene->mMaterials[mesh->mMaterialIndex]);
 	}
 
-	return Mesh(vertices, indices, textures);
+	return Mesh(vertices, indices, std::move(material));
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+Material Model::loadMaterial(const aiMaterial* aiMat)
 {
-	std::vector<Texture> textures;
-	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+	Material material;
+	material.diffuse = loadTexture(firstTexturePath(aiMat, aiTextureType_DIFFUSE));
+	material.specular = loadTexture(firstTexturePath(aiMat, aiTextureType_SPECULAR));
+
+	float shininess = 0.0f;
+	if (aiMat->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS && shininess > 0.0f)
 	{
-		aiString str;
-		mat->GetTexture(type, i, &str);
-		bool skip = false;
-		for (unsigned int j = 0; j < m_textures_loaded.size(); j++)
-		{
-			if (std::strcmp(m_textures_loaded[j].path.data(), str.C_Str()) == 0)
-			{
-				textures.push_back(m_textures_loaded[j]);
-				skip = true;
-				break;
-			}
-		}
-		if (!skip)
-		{   // if texture hasn't been loaded already, load it
-			Texture texture;
-			std::cout << "Loading texture: " << str.C_Str() << std::endl;
-			texture.id = textureFromFile(str.C_Str(), m_directory);
-			texture.type = typeName;
-			texture.path = str.C_Str();
-			textures.push_back(texture);
-			m_textures_loaded.push_back(texture); // add to loaded textures
-		}
+		material.shininess = shininess;
 	}
-	return textures;
+	return material;
 }
 
-unsigned int Model::textureFromFile(const char* path, const std::string& directory, bool gamma)
+std::shared_ptr<const OpenGLTexture> Model::loadTexture(const std::string& relativePath)
 {
-	std::string filename = std::string(path);
-	filename = directory + '/' + filename;
-
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-	if (data)
+	if (relativePath.empty())
 	{
-		GLenum format = GL_RGB;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 2)
-			format = GL_RG;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
+		return nullptr;
 	}
 
-	return textureID;
+	auto cached = m_textureCache.find(relativePath);
+	if (cached != m_textureCache.end())
+	{
+		return cached->second;
+	}
+
+	std::shared_ptr<const OpenGLTexture> texture;
+	try
+	{
+		texture = std::make_shared<const OpenGLTexture>((m_directory / relativePath).string());
+	}
+	catch (const std::exception& e)
+	{
+		// A missing map shouldn't stop the model loading; it renders without it.
+		std::cerr << "Warning: " << e.what() << std::endl;
+	}
+	m_textureCache.emplace(relativePath, texture);
+	return texture;
 }
