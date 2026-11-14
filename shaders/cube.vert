@@ -15,6 +15,8 @@ void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
     FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = aNormal;
+    // Transform normals into world space; the inverse-transpose keeps them
+    // perpendicular under rotation and non-uniform scale.
+    Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoord = aTexCoords;
 }

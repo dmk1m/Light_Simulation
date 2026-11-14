@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -30,15 +31,18 @@ void Mesh::setupMesh()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
                  &indices[0], GL_STATIC_DRAW);
 
+    // Attribute locations must match shaders/cube.vert and VertexArray::setLayout:
+    // 0 = position, 2 = texture coords, 3 = normal (1 is reserved for vertex color).
+
     // vertex positions
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    // vertex normals
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
     // vertex texture coords
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    // vertex normals
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 
     glBindVertexArray(0);
 }
@@ -65,6 +69,6 @@ void Mesh::Draw(OpenGLShader& shader)
 
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

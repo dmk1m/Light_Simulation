@@ -142,8 +142,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	float attenuation = 1.0 / (light.constant + light.linear * distance + 
     			light.quadratic * (distance * distance));  
 	ambient *= attenuation;
-	diffuse *= attenuation * intensity;
-	specular *= attenuation * intensity;
+	diffuse *= attenuation;
+	specular *= attenuation;
 
 	return (ambient + diffuse + specular);
 }

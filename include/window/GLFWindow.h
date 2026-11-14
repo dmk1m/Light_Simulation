@@ -22,8 +22,8 @@ private:
 	GLFWwindow* m_window = nullptr;
 	Camera* m_camera = nullptr;
 	
-	float m_lastX;
-	float m_lastY;
+	float m_lastX = 0.0f;
+	float m_lastY = 0.0f;
 	bool m_firstMouse = true;
 
 private:

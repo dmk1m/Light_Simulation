@@ -2,22 +2,19 @@
 
 class OpenGLTexture {
 private:
-	int m_width;
-	int m_height;
-	int nrChannels;
+	int m_width = 0;
+	int m_height = 0;
+	int m_nrChannels = 0;
 
-	unsigned int m_textureID;
-	unsigned char* m_data;
+	unsigned int m_textureID = 0;
 
 public:
-	OpenGLTexture(const char* path);
+	explicit OpenGLTexture(const char* path);
 
 	int getWidth() const;
 	int getHeight() const;
 	int getNrChannels() const;
 	unsigned int getTextureID() const;
-
-	unsigned char* getData() const;
 
 	void bind() const;
 	void unbind() const;
