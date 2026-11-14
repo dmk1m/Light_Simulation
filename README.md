@@ -15,6 +15,11 @@ A small OpenGL 3.3 demo that renders textured crates and a 3D model with several
 | Scroll wheel | Zoom (field of view) |
 | Esc | Quit |
 
+## Requirements
+- A GPU and driver that support OpenGL 3.3 (core profile).
+- Windows x64 with Visual Studio 2026 and the **Desktop development with C++** workload (MSVC v145 toolset), or CMake 3.20+.
+- Linux/macOS (untested): a C++20 compiler, CMake 3.20+, GLFW 3.3+ and Assimp.
+
 ## Building and running
 
 ### Windows: Visual Studio
