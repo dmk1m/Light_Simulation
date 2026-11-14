@@ -2,6 +2,7 @@
 #include <core/Color.h>
 #include <window/GLFWindow.h>
 #include <camera/Camera.h>
+#include <core/GLDebug.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -79,6 +80,11 @@ void GLFWindow::init()
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		throw std::runtime_error("OpenGLWindow: gladLoadGLLoader() failed");
 
+#ifndef NDEBUG
+	if (!installGLDebugOutput())
+		std::cerr << "Note: OpenGL debug output is not available on this driver." << std::endl;
+#endif
+
 	// Keep stored dimensions in sync if GLFW adjusted them
 	glfwGetFramebufferSize(m_window, &m_width, &m_height);
 	glViewport(0, 0, m_width, m_height);
@@ -119,6 +125,11 @@ void GLFWindow::setGLFWHints()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);  // required on macOS
 #endif
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+#ifndef NDEBUG
+	// Lets installGLDebugOutput() report driver errors in debug builds.
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 }
 
 void GLFWindow::framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -244,7 +255,7 @@ void GLFWindow::handleMouseMove(double xposIn, double yposIn)
 	m_camera->processMouseMovement(xoffset, yoffset);
 }
 
-void GLFWindow::handleScroll(double xoffset, double yoffset)
+void GLFWindow::handleScroll(double /*xoffset*/, double yoffset)
 {
 	if (!m_camera)
 	{
